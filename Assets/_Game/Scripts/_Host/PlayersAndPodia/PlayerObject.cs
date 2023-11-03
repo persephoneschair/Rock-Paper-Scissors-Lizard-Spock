@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
 
 public class PlayerObject
@@ -13,29 +12,21 @@ public class PlayerObject
     public string otp;
     public string playerName;
 
-    public GlobalLeaderboardStrap strap;
-    public GlobalLeaderboardStrap cloneStrap;
-
     public string twitchName;
     public Texture profileImage;
 
     public bool eliminated;
 
-    public int points;
-    public int totalCorrect;
-    public string submission;
-    public float submissionTime;
-    public bool flagForCondone;
-    public bool wasCorrect;
+    public RPSLSManager.RPSLS playedMove;
+    public int boutsWonThisRound = 0;
+    public int boutsPlayedThisRound = 0;
+    public int totalboutsWon = 0;
 
     public PlayerObject(Player pl, string name)
     {
         playerClientRef = pl;
         otp = OTPGenerator.GenerateOTP();
         playerName = name;
-        points = 0;
-        //podium = Podiums.GetPodiums.podia.FirstOrDefault(x => x.containedPlayer == null);
-        //podium.containedPlayer = this;
     }
 
     public void ApplyProfilePicture(string name, Texture tx, bool bypassSwitchAccount = false)
@@ -52,48 +43,73 @@ public class PlayerObject
             oldPlayer.playerClientID = playerClientID;
             oldPlayer.playerClientRef = playerClientRef;
             oldPlayer.playerName = playerName;
-            //oldPlayer.podium.playerNameMesh.text = playerName;
 
             otp = "";
             //podium.containedPlayer = null;
-            //podium = null;
+            podium = null;
             playerClientRef = null;
             playerName = "";
 
             if (PlayerManager.Get.pendingPlayers.Contains(this))
                 PlayerManager.Get.pendingPlayers.Remove(this);
 
-            HostManager.Get.SendPayloadToClient(oldPlayer, EventLibrary.HostEventType.Validated, $"{oldPlayer.playerName}|{oldPlayer.points.ToString()}|{oldPlayer.twitchName}");
+            HostManager.Get.SendPayloadToClient(oldPlayer, EventLibrary.HostEventType.Validated, $"{oldPlayer.playerName}|{oldPlayer.boutsWonThisRound.ToString()}/{oldPlayer.boutsPlayedThisRound.ToString()}|{oldPlayer.twitchName}");
             //HostManager.Get.UpdateLeaderboards();
             return;
         }
         otp = "";
         twitchName = name.ToLowerInvariant();
         profileImage = tx;
-        //podium.avatarRend.material.mainTexture = profileImage;
-        if(!LobbyManager.Get.lateEntry)
+        if(!Operator.Get.lateEntry)
         {
-            //podium.InitialisePodium();
-        }
+            HostManager.Get.SendPayloadToClient(this, EventLibrary.HostEventType.Validated, $"{playerName}|{boutsWonThisRound.ToString()}/{boutsPlayedThisRound.ToString()}|{twitchName}");
+            PlayerManager.Get.players.Add(this);
+            PlayerManager.Get.pendingPlayers.Remove(this);
+            SaveManager.BackUpData();
+            PlayerManager.Get.InstantiateNewPodium(this);
+        }        
         else
         {
-            points = 0;
-            eliminated = true;
+            HostManager.Get.SendPayloadToClient(this, EventLibrary.HostEventType.Information, "The game has already started.");
+            PlayerManager.Get.pendingPlayers.Remove(this);
+            return;
         }
-        HostManager.Get.SendPayloadToClient(this, EventLibrary.HostEventType.Validated, $"{playerName}|{points.ToString()}|{twitchName}");
-        PlayerManager.Get.players.Add(this);
-        PlayerManager.Get.pendingPlayers.Remove(this);
-        LeaderboardManager.Get.PlayerHasJoined(this);
-        SaveManager.BackUpData();
-        //HostManager.GetHost.UpdateLeaderboards();
     }
 
     public void HandlePlayerScoring(string[] submittedAnswers)
     {
-        switch(GameplayManager.Get.currentRound)
+        string ans = submittedAnswers.FirstOrDefault();
+        switch(ans)
         {
-            default:
+            case "ROCK":
+                playedMove = RPSLSManager.RPSLS.Rock;
+                break;
+
+            case "PAPER":
+                playedMove = RPSLSManager.RPSLS.Paper;
+                break;
+
+            case "SCISSORS":
+                playedMove = RPSLSManager.RPSLS.Scissors;
+                break;
+
+            case "LIZARD":
+                playedMove = RPSLSManager.RPSLS.Lizard;
+                break;
+
+            case "SPOCK":
+                playedMove = RPSLSManager.RPSLS.Spock;
+                break;
+
+            case "RANDOM":
+                playedMove = (RPSLSManager.RPSLS)UnityEngine.Random.Range(0, 5);
                 break;
         }
+        MatchManager.Get.CheckForBothResponded();
+    }
+
+    public void UpdatePlayerScore()
+    {
+        HostManager.Get.SendPayloadToClient(this, EventLibrary.HostEventType.UpdateScore, $"<color={(boutsWonThisRound >= Operator.Get.activeBoutTarget ? "green" : "red")}>{boutsWonThisRound}/{boutsPlayedThisRound}");
     }
 }

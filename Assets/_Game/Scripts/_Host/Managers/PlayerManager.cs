@@ -13,6 +13,10 @@ public class PlayerManager : SingletonMonoBehaviour<PlayerManager>
     public bool pullingData = true;
     [Range(0,39)] public int playerIndex;
 
+    public List<Podium> instancedPodia = new List<Podium>();
+    public GameObject playerPodiumToInstance;
+    public Transform podiumTransformTarget;
+
 
     private PlayerObject _focusPlayer;
     public PlayerObject FocusPlayer
@@ -26,30 +30,20 @@ public class PlayerManager : SingletonMonoBehaviour<PlayerManager>
                 playerName = value.playerName;
                 twitchName = value.twitchName;
                 profileImage = value.profileImage;
-                flagForCondone = value.flagForCondone;
-                wasCorrect = value.wasCorrect;
                 eliminated = value.eliminated;
 
-                points = value.points;
-                totalCorrect = value.totalCorrect;
-                submission = value.submission;
-                submissionTime = value.submissionTime;
+                boutsWonThisRound = value.boutsWonThisRound;
+                boutsPlayedThisRound = value.boutsPlayedThisRound;
             }
             else
             {
                 playerName = "OUT OF RANGE";
                 twitchName = "OUT OF RANGE";
                 profileImage = null;
-                flagForCondone = false;
-                wasCorrect = false;
                 eliminated = false;
 
-                points = 0;
-                totalCorrect = 0;
-                currentBid = 0;
-                maxPoints = 0;
-                submission = "OUT OF RANGE";
-                submissionTime = 0;
+                boutsWonThisRound = 0;
+                boutsPlayedThisRound = 0;
             }                
         }
     }
@@ -58,17 +52,11 @@ public class PlayerManager : SingletonMonoBehaviour<PlayerManager>
     [ShowOnly] public string playerName;
     [ShowOnly] public string twitchName;
     public Texture profileImage;
-    [ShowOnly] public bool flagForCondone;
-    [ShowOnly] public bool wasCorrect;
     [ShowOnly] public bool eliminated;
 
     [Header("Variable Fields")]
-    public int points;
-    public int totalCorrect;
-    public int currentBid;
-    public int maxPoints;
-    public string submission;
-    public float submissionTime;
+    public int boutsWonThisRound;
+    public int boutsPlayedThisRound;
 
     void UpdateDetails()
     {
@@ -103,10 +91,21 @@ public class PlayerManager : SingletonMonoBehaviour<PlayerManager>
 
     void SetDataBack()
     {
-        FocusPlayer.points = points;
-        FocusPlayer.totalCorrect = totalCorrect;
-        FocusPlayer.submission = submission;
-        FocusPlayer.submissionTime = submissionTime;
+        FocusPlayer.boutsWonThisRound = boutsWonThisRound;
+        FocusPlayer.boutsPlayedThisRound = boutsPlayedThisRound;
         pullingData = true;
+    }
+
+    public void InstantiateNewPodium(PlayerObject po)
+    {
+        var x = Instantiate(playerPodiumToInstance, podiumTransformTarget);
+        Podium xP = x.GetComponent<Podium>();
+        po.podium = xP;
+        xP.containedPlayer = po;
+        xP.playerAvatar.texture = po.profileImage;
+        instancedPodia.Add(xP);
+
+        if (!Operator.Get.autoRun)
+            MatchManager.Get.UpdateRoundInfo();
     }
 }

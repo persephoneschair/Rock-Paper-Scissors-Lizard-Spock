@@ -11,6 +11,6 @@ public class PlayerObjectSerializable
 
     public bool eliminated;
 
-    public int points;
-    public int totalCorrect;
+    public int boutsWonThisRound;
+    public int boutsPlayedThisRound;
 }

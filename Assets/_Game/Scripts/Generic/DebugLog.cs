@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class DebugLog
 {
-    public enum ColorOption { Green, Blue, Red, Yellow, Orange, Default };
+    public enum ColorOption { Green = 0, Blue, Red, Yellow, Orange, Default };
     public enum StyleOption { Bold, Italic, BoldItalic, Default };
 
     public static void Print(string message, StyleOption style = StyleOption.Default, ColorOption col = ColorOption.Default)

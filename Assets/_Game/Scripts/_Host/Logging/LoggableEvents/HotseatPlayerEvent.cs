@@ -27,7 +27,6 @@ public class HotseatPlayerEvent : LoggableEvent
     {
         twitchName = p.twitchName;
         playerName = p.playerName;
-        points = p.points;
     }
 
     #endregion

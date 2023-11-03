@@ -23,9 +23,7 @@ public static class SaveManager
 
         GameplayDataSerializable gpd = new GameplayDataSerializable()
         {
-            nextQuestionNumber = GameplayManager.nextQuestionIndex,
             currentRound = GameplayManager.Get.currentRound,
-            roundsPlayed = GameplayManager.Get.roundsPlayed
         };
 
         var gameStateData = JsonConvert.SerializeObject(gpd, Formatting.Indented);
@@ -39,8 +37,8 @@ public static class SaveManager
         pl.playerClientID = playerObject.playerClientID;
         pl.twitchName = playerObject.twitchName;
         pl.eliminated = playerObject.eliminated;
-        pl.points = playerObject.points;
-        pl.totalCorrect = playerObject.totalCorrect;
+        pl.boutsWonThisRound = playerObject.boutsWonThisRound;
+        pl.boutsPlayedThisRound = playerObject.boutsPlayedThisRound;
         return pl;
     }
 
@@ -64,8 +62,8 @@ public static class SaveManager
             po.twitchName = rc.twitchName;
             po.eliminated = rc.eliminated;
 
-            po.points = rc.points;
-            po.totalCorrect = rc.totalCorrect;
+            po.boutsWonThisRound = rc.boutsWonThisRound;
+            po.boutsPlayedThisRound = rc.boutsPlayedThisRound;
         }
     }
 
@@ -82,9 +80,7 @@ public static class SaveManager
     {
         if(gameplayData != null)
         {
-            GameplayManager.nextQuestionIndex = gameplayData.nextQuestionNumber;
             GameplayManager.Get.currentRound = gameplayData.currentRound;
-            GameplayManager.Get.roundsPlayed = gameplayData.roundsPlayed;
         }
         Operator.Get.recoveryMode = false;
         HostManager.Get.host.ReloadHost = false;

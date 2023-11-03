@@ -54,6 +54,8 @@ public class TwitchManager : SingletonMonoBehaviour<TwitchManager>
         if(PlayerManager.Get.pendingPlayers.Any(x => x.otp.ToUpperInvariant() == message.ToUpperInvariant()))
         {
             var pl = PlayerManager.Get.pendingPlayers.FirstOrDefault(x => x.otp.ToUpperInvariant() == message.ToUpperInvariant() && string.IsNullOrEmpty(x.twitchName));
+            if (pl == null)
+                return;
             DebugLog.Print(pl.playerName + " (" + id.UserName + ") has validated their account.", DebugLog.StyleOption.Bold, DebugLog.ColorOption.Yellow);
             SendBotMessage(id.UserName + ", you have validated your account.");
             List<string> l = new List<string> { id.UserName };
