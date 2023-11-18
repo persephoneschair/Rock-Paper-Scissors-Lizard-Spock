@@ -32,7 +32,7 @@ public class MatchManager : SingletonMonoBehaviour<MatchManager>
         foreach (char c in HostManager.Get.host.RoomCode)
             spacedRoomCode += c + " ";
 
-        joinAndNextMatchMesh.text = $"To join the game, please visit:\n<size=150%><color=orange>https://persephoneschair.itch.io/gamenight</color></size>\n<size=175%>Use the room code <color=red>{spacedRoomCode}</color></size>";
+        joinAndNextMatchMesh.text = $"To join the game, please visit:\n<size=150%><color=orange>https://persephoneschair.itch.io/gamenight</color></size>\n<size=175%>Use the room code <color=green>{spacedRoomCode}</color></size>";
     }
 
     public IEnumerator AutoLockLobby(int timer)
